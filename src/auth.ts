@@ -23,6 +23,7 @@ export function decodeBasicAuth(encodedString: string): {
 // return null if auth passes or is not required,
 // return auth page if auth is required
 // throw WorkerError if auth failed
+// TODO: only allow hashed passwd
 export function verifyAuth(request: Request, env: Env): Response | null {
   // pass auth if 'BASIC_AUTH' is not present
   const basic_auth = env.BASIC_AUTH as { [username: string]: string }

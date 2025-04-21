@@ -6,10 +6,12 @@ export type PasteMetadata = {
 
   lastModifiedAtUnix: number
   createdAtUnix: number
+  // TODO: allow admin to upload permanent paste
   willExpireAtUnix: number
 
   accessCounter: number // a counter representing how frequent it is accessed, to administration usage
-  sizeBytes?: number,
+  sizeBytes?: number
+  // TODO: add filename length check
   filename?: string
 }
 
