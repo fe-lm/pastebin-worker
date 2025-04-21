@@ -33,6 +33,7 @@ jobs:
 
       - name: "Test"
         run: |
+          yarn prettier -c .
           yarn tsc --noEmit
           yarn test
 

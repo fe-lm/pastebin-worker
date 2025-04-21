@@ -1,13 +1,13 @@
-import {FormDataDisposition} from "./parseFormdata.js";
+import { FormDataDisposition } from "./parseFormdata.js"
 
 export const params = {
-  CHAR_GEN : "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",
-  NAME_REGEX : /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
-  PASTE_NAME_LEN : 4,
-  PRIVATE_PASTE_NAME_LEN : 24,
-  DEFAULT_PASSWD_LEN : 24,
-  SEP : ":",
-  MAX_LEN : 25 * 1024 * 1024,
+  CHAR_GEN: "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",
+  NAME_REGEX: /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
+  PASTE_NAME_LEN: 4,
+  PRIVATE_PASTE_NAME_LEN: 24,
+  DEFAULT_PASSWD_LEN: 24,
+  SEP: ":",
+  MAX_LEN: 25 * 1024 * 1024,
 }
 
 export function decode(arrayBuffer: ArrayBuffer): string {
@@ -15,27 +15,20 @@ export function decode(arrayBuffer: ArrayBuffer): string {
 }
 
 export function btoa_utf8(value: string): string {
-  return btoa(
-    String.fromCharCode(
-      ...new TextEncoder()
-        .encode(value)
-    )
-  );
+  return btoa(String.fromCharCode(...new TextEncoder().encode(value)))
 }
 
 export function atob_utf8(value: string): string {
-  const value_latin1 = atob(value);
-  return new TextDecoder('utf-8').decode(
-    Uint8Array.from(
-      { length: value_latin1.length },
-      (element, index) => value_latin1.charCodeAt(index)
-    )
+  const value_latin1 = atob(value)
+  return new TextDecoder("utf-8").decode(
+    Uint8Array.from({ length: value_latin1.length }, (element, index) =>
+      value_latin1.charCodeAt(index),
+    ),
   )
 }
 
-
 export class WorkerError extends Error {
-  public statusCode: number;
+  public statusCode: number
   constructor(statusCode: number, ...params: any[]) {
     super(...params)
     this.statusCode = statusCode
@@ -43,7 +36,7 @@ export class WorkerError extends Error {
 }
 
 export function dateToUnix(date: Date): number {
-  return Math.floor(date.getTime() / 1000);
+  return Math.floor(date.getTime() / 1000)
 }
 
 export function genRandStr(len: number) {
@@ -73,9 +66,11 @@ export function parsePath(pathname: string): ParsedPath {
   // > example.com/abcd/myphoto.jpg
   // > example.com/u/abcd
   // > example.com/abcd:3ffd2e7ff214989646e006bd9ad36c58d447065e
-  pathname = pathname.slice(1,)  // strip the leading slash
+  pathname = pathname.slice(1) // strip the leading slash
 
-  let role = undefined, ext = undefined, filename = undefined
+  let role = undefined,
+    ext = undefined,
+    filename = undefined
 
   // extract and remove role
   if (pathname[1] === "/") {
@@ -114,14 +109,17 @@ export function parsePath(pathname: string): ParsedPath {
 export function parseExpiration(expirationStr: string): number {
   const EXPIRE_REGEX = /^[\d.]+\s*[smhd]?$/
   if (!EXPIRE_REGEX.test(expirationStr)) {
-    throw new WorkerError(400, `‘${expirationStr}’ is not a valid expiration specification`)
+    throw new WorkerError(
+      400,
+      `‘${expirationStr}’ is not a valid expiration specification`,
+    )
   }
 
   let expirationSeconds = parseFloat(expirationStr)
   const lastChar = expirationStr[expirationStr.length - 1]
-  if (lastChar === 'm') expirationSeconds *= 60
-  else if (lastChar === 'h') expirationSeconds *= 3600
-  else if (lastChar === 'd') expirationSeconds *= 3600 * 24
+  if (lastChar === "m") expirationSeconds *= 60
+  else if (lastChar === "h") expirationSeconds *= 3600
+  else if (lastChar === "d") expirationSeconds *= 3600 * 24
   return expirationSeconds
 }
 
@@ -130,10 +128,10 @@ export function escapeHtml(str: string): string {
     ["&", "&amp;"],
     ["<", "&lt;"],
     [">", "&gt;"],
-    ["\"", "&quot"],
+    ['"', "&quot"],
     ["'", "&#x27"],
   ])
-  return str.replace(/[&<>]/g, function (tag): string{
+  return str.replace(/[&<>]/g, function (tag): string {
     return tagsToReplace.get(tag) || tag
   })
 }

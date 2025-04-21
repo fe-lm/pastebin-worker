@@ -8,7 +8,7 @@ import {
   workerFetch,
 } from "./testUtils.js"
 import { encodeBasicAuth, decodeBasicAuth } from "../src/auth.js"
-import {createExecutionContext, env} from "cloudflare:test";
+import { createExecutionContext, env } from "cloudflare:test"
 
 test("basic auth encode and decode", async () => {
   const userPasswdPairs = [
@@ -27,41 +27,59 @@ test("basic auth encode and decode", async () => {
 test("basic auth", async () => {
   const ctx = createExecutionContext()
   const users: Record<string, string> = {
-    "user1": "passwd1",
-    "user2": "passwd2",
+    user1: "passwd1",
+    user2: "passwd2",
   }
   env.BASIC_AUTH = users
 
   // access index
   for (const page of staticPages) {
-    expect((await workerFetch(ctx, `${BASE_URL}/${page}`)).status).toStrictEqual(401)
+    expect(
+      (await workerFetch(ctx, `${BASE_URL}/${page}`)).status,
+    ).toStrictEqual(401)
   }
-  expect((await workerFetch(ctx, new Request(BASE_URL, {
-    headers: { "Authorization": encodeBasicAuth("user1", users["user1"]) },
-  }))).status).toStrictEqual(200)
+  expect(
+    (
+      await workerFetch(
+        ctx,
+        new Request(BASE_URL, {
+          headers: { Authorization: encodeBasicAuth("user1", users["user1"]) },
+        }),
+      )
+    ).status,
+  ).toStrictEqual(200)
 
   // upload with no auth
   const blob1 = genRandomBlob(1024)
-  const uploadResp = await workerFetch(ctx, new Request(BASE_URL, {
-    method: "POST",
-    body: createFormData({ c: blob1 }),
-  }))
+  const uploadResp = await workerFetch(
+    ctx,
+    new Request(BASE_URL, {
+      method: "POST",
+      body: createFormData({ c: blob1 }),
+    }),
+  )
   expect(uploadResp.status).toStrictEqual(401)
 
   // upload with true auth
-  const uploadResp1 = await workerFetch(ctx, new Request(BASE_URL, {
-    method: "POST",
-    body: createFormData({ c: blob1 }),
-    headers: { "Authorization": encodeBasicAuth("user2", users["user2"]) },
-  }))
+  const uploadResp1 = await workerFetch(
+    ctx,
+    new Request(BASE_URL, {
+      method: "POST",
+      body: createFormData({ c: blob1 }),
+      headers: { Authorization: encodeBasicAuth("user2", users["user2"]) },
+    }),
+  )
   expect(uploadResp1.status).toStrictEqual(200)
 
   // upload with wrong auth
-  const uploadResp2 = await workerFetch(ctx, new Request(BASE_URL, {
-    method: "POST",
-    body: createFormData({ c: blob1 }),
-    headers: { "Authorization": encodeBasicAuth("user1", "wrong-password") },
-  }))
+  const uploadResp2 = await workerFetch(
+    ctx,
+    new Request(BASE_URL, {
+      method: "POST",
+      body: createFormData({ c: blob1 }),
+      headers: { Authorization: encodeBasicAuth("user1", "wrong-password") },
+    }),
+  )
   expect(uploadResp2.status).toStrictEqual(401)
 
   // revisit without auth
@@ -74,19 +92,25 @@ test("basic auth", async () => {
   // update with no auth
   const blob2 = genRandomBlob(1024)
   const admin = uploadJson["manageUrl"]
-  const updateResp = await workerFetch(ctx, new Request(admin, {
-    method: "PUT",
-    body: createFormData({ c: blob2 }),
-  }))
+  const updateResp = await workerFetch(
+    ctx,
+    new Request(admin, {
+      method: "PUT",
+      body: createFormData({ c: blob2 }),
+    }),
+  )
   expect(updateResp.status).toStrictEqual(200)
   const revisitUpdatedResp = await workerFetch(ctx, url)
   expect(revisitUpdatedResp.status).toStrictEqual(200)
   expect(areBlobsEqual(await revisitUpdatedResp.blob(), blob2)).toBeTruthy()
 
   // delete with no auth
-  const deleteResp = await workerFetch(ctx, new Request(admin, {
-    method: "DELETE",
-  }))
+  const deleteResp = await workerFetch(
+    ctx,
+    new Request(admin, {
+      method: "DELETE",
+    }),
+  )
   expect(deleteResp.status).toStrictEqual(200)
   expect((await workerFetch(ctx, url)).status).toStrictEqual(404)
 

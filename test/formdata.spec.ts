@@ -6,7 +6,8 @@ test("basic formdata", async () => {
   const boundaryLine = `--${boundary}\r\n`
   const endLine = `--${boundary}--`
 
-  const content = "print('Error 2\\n', omg, '\\n', theta, '\\n', expse3mat, '\\n', explogexpse3mat)\r\n" +
+  const content =
+    "print('Error 2\\n', omg, '\\n', theta, '\\n', expse3mat, '\\n', explogexpse3mat)\r\n" +
     "print('diff = ', np.max(np.abs(expse3mat - explogexpse3mat)))\r\n" +
     "break"
 
@@ -16,10 +17,12 @@ test("basic formdata", async () => {
   const fullBody =
     boundaryLine +
     `Content-Disposition: form-data; name="c"; filename="${filename}"\r\n\r\n` +
-    content + "\r\n" +
+    content +
+    "\r\n" +
     boundaryLine +
-    "Content-Disposition: form-data; name=\"s\";\r\n\r\n" +
-    secret + "\r\n" +
+    'Content-Disposition: form-data; name="s";\r\n\r\n' +
+    secret +
+    "\r\n" +
     endLine
 
   const bodyBuffer = Buffer.from(fullBody, "utf-8")

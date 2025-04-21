@@ -4,7 +4,7 @@ import { verifyAuth } from "../auth.js"
 import mime from "mime/lite"
 import { makeMarkdown } from "../pages/markdown.js"
 import { makeHighlight } from "../pages/highlight.js"
-import {getPaste, PasteMetadata} from "../storage/storage.js";
+import { getPaste, PasteMetadata } from "../storage/storage.js"
 
 type Headers = { [name: string]: string }
 
@@ -13,17 +13,23 @@ function staticPageCacheHeader(env: Env): Headers {
   return age ? { "cache-control": `public, max-age=${age}` } : {}
 }
 
-function pasteCacheHeader(env: Env) : Headers {
+function pasteCacheHeader(env: Env): Headers {
   const age = env.CACHE_PASTE_AGE
   return age ? { "cache-control": `public, max-age=${age}` } : {}
 }
 
 function lastModifiedHeader(metadata: PasteMetadata): Headers {
   const lastModified = metadata.lastModifiedAtUnix
-  return lastModified ? { "last-modified": new Date(lastModified * 1000).toUTCString() } : {}
+  return lastModified
+    ? { "last-modified": new Date(lastModified * 1000).toUTCString() }
+    : {}
 }
 
-export async function handleGet(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
+export async function handleGet(
+  request: Request,
+  env: Env,
+  _: ExecutionContext,
+): Promise<Response> {
   const url = new URL(request.url)
   const { role, nameFromPath, ext, passwd, filename } = parsePath(url.pathname)
 
@@ -32,7 +38,10 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
   }
 
   // return the editor for admin URL
-  const staticPageContent = getStaticPage((passwd && passwd.length > 0) ? "/" : url.pathname, env)
+  const staticPageContent = getStaticPage(
+    passwd && passwd.length > 0 ? "/" : url.pathname,
+    env,
+  )
   if (staticPageContent) {
     // access to all static pages requires auth
     const authResponse = verifyAuth(request, env)
@@ -40,7 +49,10 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
       return authResponse
     }
     return new Response(staticPageContent, {
-      headers: { "content-type": "text/html;charset=UTF-8", ...staticPageCacheHeader(env) },
+      headers: {
+        "content-type": "text/html;charset=UTF-8",
+        ...staticPageCacheHeader(env),
+      },
     })
   }
 
@@ -56,10 +68,11 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
   // check `if-modified-since`
   const pasteLastModifiedUnix = item.metadata.lastModifiedAtUnix
 
-  const inferred_mime = url.searchParams.get("mime")
-    || (ext && mime.getType(ext))
-    || (item.metadata.filename && mime.getType(item.metadata.filename))
-    || "text/plain"
+  const inferred_mime =
+    url.searchParams.get("mime") ||
+    (ext && mime.getType(ext)) ||
+    (item.metadata.filename && mime.getType(item.metadata.filename)) ||
+    "text/plain"
 
   const headerModifiedSince = request.headers.get("if-modified-since")
   if (headerModifiedSince) {
@@ -89,7 +102,11 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
   if (role === "a") {
     const md = makeMarkdown(decode(item.paste))
     return new Response(md, {
-      headers: { "content-type": `text/html;charset=UTF-8`, ...pasteCacheHeader(env), ...lastModifiedHeader(item.metadata) },
+      headers: {
+        "content-type": `text/html;charset=UTF-8`,
+        ...pasteCacheHeader(env),
+        ...lastModifiedHeader(item.metadata),
+      },
     })
   }
 
@@ -97,19 +114,23 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
   const lang = url.searchParams.get("lang")
   if (lang) {
     return new Response(makeHighlight(decode(item.paste), lang), {
-      headers: { "content-type": `text/html;charset=UTF-8`, ...pasteCacheHeader(env), ...lastModifiedHeader(item.metadata) },
+      headers: {
+        "content-type": `text/html;charset=UTF-8`,
+        ...pasteCacheHeader(env),
+        ...lastModifiedHeader(item.metadata),
+      },
     })
   } else {
-
     // handle default
     const headers: Headers = {
       "content-type": `${inferred_mime};charset=UTF-8`,
       ...pasteCacheHeader(env),
-      ...lastModifiedHeader(item.metadata)
+      ...lastModifiedHeader(item.metadata),
     }
     if (returnFilename) {
       const encodedFilename = encodeURIComponent(returnFilename)
-      headers["content-disposition"] = `${disp}; filename*=UTF-8''${encodedFilename}`
+      headers["content-disposition"] =
+        `${disp}; filename*=UTF-8''${encodedFilename}`
     } else {
       headers["content-disposition"] = `${disp}`
     }

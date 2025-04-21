@@ -27,12 +27,16 @@ function getMetadata(options: { result: DocMetadata }): (tree: any) => void {
       if (tree.children.length > 1) {
         // description is set as the content of the second node
         const secondChild = tree.children[1]
-        options.result.description = escapeHtml(toString(secondChild).slice(0, descriptionLimit))
+        options.result.description = escapeHtml(
+          toString(secondChild).slice(0, descriptionLimit),
+        )
       }
     } else {
       // no title is set
       // description is set as the content of the first node
-      options.result.description = escapeHtml(toString(firstChild).slice(0, descriptionLimit))
+      options.result.description = escapeHtml(
+        toString(firstChild).slice(0, descriptionLimit),
+      )
     }
   }
 }
@@ -42,10 +46,11 @@ export function makeMarkdown(content: string): string {
   const convertedHtml = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(getMetadata, { result: metadata })  // result is written to `metadata` variable
+    .use(getMetadata, { result: metadata }) // result is written to `metadata` variable
     .use(remarkRehype)
     .use(rehypeStringify)
-    .processSync(content).value.toString()
+    .processSync(content)
+    .value.toString()
 
   return `<!DOCTYPE html>
 <html lang='en'>

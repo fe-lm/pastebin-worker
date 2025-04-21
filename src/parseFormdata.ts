@@ -1,29 +1,32 @@
-import {decode, WorkerError} from "./common.js";
+import { decode, WorkerError } from "./common.js"
 
-const contentDispositionPrefix = 'Content-Disposition:'
+const contentDispositionPrefix = "Content-Disposition:"
 
 // TODO: migrate to native interface
 
 export type FormDataDisposition = {
-  name: string,
-  dispositionType: string,
-  filename?: string,
+  name: string
+  dispositionType: string
+  filename?: string
 }
 
 export type FormDataPart = {
-  disposition: FormDataDisposition,
-  headers: Map<string, string>,
-  content: Uint8Array,
+  disposition: FormDataDisposition
+  headers: Map<string, string>
+  content: Uint8Array
 }
 
-export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<string, FormDataPart> {
-  boundary = '--' + boundary
+export function parseFormdata(
+  uint8Array: Uint8Array,
+  boundary: string,
+): Map<string, FormDataPart> {
+  boundary = "--" + boundary
   function readLine(idx: number): number {
     // return the index before the next '\r\n' occurs after idx
     for (let i = idx; i < uint8Array.length - 1; i++) {
-      if (uint8Array[i] === 0x0D) {
-        i ++
-        if (uint8Array[i] === 0x0A) {
+      if (uint8Array[i] === 0x0d) {
+        i++
+        if (uint8Array[i] === 0x0a) {
           return i - 1
         }
       }
@@ -35,27 +38,34 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
     // get disposition type
     let dispositionTypeStartIdx = contentDispositionPrefix.length + 1
     while (dispositionTypeStartIdx < line.length) {
-      if (line[dispositionTypeStartIdx] !== ' '.charCodeAt(0)) {
+      if (line[dispositionTypeStartIdx] !== " ".charCodeAt(0)) {
         break
       }
       dispositionTypeStartIdx++
     }
     let dispositionTypeEndIdx = dispositionTypeStartIdx
     while (dispositionTypeEndIdx < line.length) {
-      if (line[dispositionTypeEndIdx + 1] === ';'.charCodeAt(0) ) {
+      if (line[dispositionTypeEndIdx + 1] === ";".charCodeAt(0)) {
         break
       }
       dispositionTypeEndIdx++
     }
-    const dispositionType = decode(line.slice(dispositionTypeStartIdx, dispositionTypeEndIdx + 1))
+    const dispositionType = decode(
+      line.slice(dispositionTypeStartIdx, dispositionTypeEndIdx + 1),
+    )
 
     let name: string | undefined, filename: string | undefined
 
-    for (const dispositionField of decode(line.slice(dispositionTypeEndIdx + 2)).split(';')) {
+    for (const dispositionField of decode(
+      line.slice(dispositionTypeEndIdx + 2),
+    ).split(";")) {
       if (dispositionField.match(/^\s*$/)) continue
       const match = dispositionField.match(/\b(\w+)="(.+?)"/)
       if (!match) {
-        throw new WorkerError(400, `Failed to parse formdata ContentDisposition field: '${dispositionField}'`)
+        throw new WorkerError(
+          400,
+          `Failed to parse formdata ContentDisposition field: '${dispositionField}'`,
+        )
       } else {
         const [_, k, v] = match
         if (k == "name") {
@@ -85,9 +95,9 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
 
     while (curIdx < line.length) {
       if (curIdx === line.length - 1) {
-        throw new WorkerError(400, "Failed to parse formdata header");
+        throw new WorkerError(400, "Failed to parse formdata header")
       }
-      if (line[curIdx + 1] != ':'.charCodeAt(0)) {
+      if (line[curIdx + 1] != ":".charCodeAt(0)) {
         curIdx++
       } else {
         break
@@ -95,9 +105,9 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
     }
     let key = decode(line.slice(0, curIdx + 1))
 
-    curIdx ++ // now curIdx points to the next char after ':'
+    curIdx++ // now curIdx points to the next char after ':'
     while (curIdx < line.length) {
-      if (line[curIdx] === ' '.charCodeAt(0)) {
+      if (line[curIdx] === " ".charCodeAt(0)) {
         curIdx++
       } else {
         break
@@ -108,7 +118,11 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
     return [key, value]
   }
 
-  enum LineType { NORMAL, BOUNDARY, END}
+  enum LineType {
+    NORMAL,
+    BOUNDARY,
+    END,
+  }
   function getLineType(line: Uint8Array): LineType {
     if (line.length === 0) return LineType.NORMAL
     if (line.length === boundary.length) {
@@ -120,7 +134,10 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
       for (let i = 0; i < boundary.length; i++) {
         if (line[i] !== boundary.charCodeAt(i)) return LineType.NORMAL
       }
-      if (line[boundary.length] === 0x2D && line[boundary.length + 1] === 0x2D) {
+      if (
+        line[boundary.length] === 0x2d &&
+        line[boundary.length + 1] === 0x2d
+      ) {
         return LineType.END
       }
     }
@@ -129,7 +146,10 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
 
   let decoder = new TextDecoder()
 
-  enum DecoderState { WANT_HEADER, WANT_BODY}
+  enum DecoderState {
+    WANT_HEADER,
+    WANT_BODY,
+  }
   // state:
   // 0: expecting a header
   // 1: expecting body or boundary
@@ -142,12 +162,13 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
   let curHeaders: Map<string, string> = new Map()
 
   while (true) {
-    const lineEnd = readLine(lineStart);
+    const lineEnd = readLine(lineStart)
     const line = uint8Array.subarray(lineStart, lineEnd)
 
     // start reading the body
     if (state === DecoderState.WANT_HEADER) {
-      if (line.length === 0) {  // encounter end of headers
+      if (line.length === 0) {
+        // encounter end of headers
         state = DecoderState.WANT_BODY
         bodyStartIdx = lineEnd + 2
       } else if (isContentDisposition(line)) {
@@ -158,9 +179,14 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
       }
     } else {
       const lineType = getLineType(line)
-      if (lineType !== LineType.NORMAL) {  // current line is boundary or EOF
+      if (lineType !== LineType.NORMAL) {
+        // current line is boundary or EOF
         let content = uint8Array.subarray(bodyStartIdx, lineStart - 2)
-        parts.set(curDisposition!.name, { disposition: curDisposition!, headers: curHeaders, content: content })
+        parts.set(curDisposition!.name, {
+          disposition: curDisposition!,
+          headers: curHeaders,
+          content: content,
+        })
         state = DecoderState.WANT_HEADER
       }
       if (lineType === LineType.END || lineEnd === uint8Array.length) break
@@ -172,5 +198,5 @@ export function parseFormdata(uint8Array: Uint8Array, boundary: string): Map<str
 }
 
 export function getBoundary(contentType: string): string {
-  return contentType.split('=')[1]
+  return contentType.split("=")[1]
 }

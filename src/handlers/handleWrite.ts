@@ -1,5 +1,5 @@
 import { verifyAuth } from "../auth.js"
-import {FormDataPart, getBoundary, parseFormdata} from "../parseFormdata.js"
+import { FormDataPart, getBoundary, parseFormdata } from "../parseFormdata.js"
 import {
   decode,
   genRandStr,
@@ -9,16 +9,26 @@ import {
   parsePath,
   WorkerError,
 } from "../common.js"
-import {createPaste, getPasteMetadata, pasteNameAvailable, updatePaste} from "../storage/storage.js";
+import {
+  createPaste,
+  getPasteMetadata,
+  pasteNameAvailable,
+  updatePaste,
+} from "../storage/storage.js"
 
 type PasteResponse = {
-  url: string,
-  suggestedUrl?: string,
-  manageUrl: string,
-  expirationSeconds: number,
+  url: string
+  suggestedUrl?: string
+  manageUrl: string
+  expirationSeconds: number
 }
 
-function suggestUrl(content: ArrayBuffer, short: string, baseUrl: string, filename?: string) {
+function suggestUrl(
+  content: ArrayBuffer,
+  short: string,
+  baseUrl: string,
+  filename?: string,
+) {
   if (filename) {
     return `${baseUrl}/${short}/${filename}`
   } else if (isLegalUrl(decode(content))) {
@@ -28,8 +38,14 @@ function suggestUrl(content: ArrayBuffer, short: string, baseUrl: string, filena
   }
 }
 
-export async function handlePostOrPut(request: Request, env: Env, ctx: ExecutionContext, isPut: boolean): Promise<Response> {
-  if (!isPut) {  // only POST requires auth, since PUT request already contains auth
+export async function handlePostOrPut(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext,
+  isPut: boolean,
+): Promise<Response> {
+  if (!isPut) {
+    // only POST requires auth, since PUT request already contains auth
     const authResponse = verifyAuth(request, env)
     if (authResponse !== null) {
       return authResponse
@@ -51,7 +67,10 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
       throw new WorkerError(400, "error occurs when parsing formdata")
     }
   } else {
-    throw new WorkerError(400, `bad usage, please use 'multipart/form-data' instead of ${contentType}`)
+    throw new WorkerError(
+      400,
+      `bad usage, please use 'multipart/form-data' instead of ${contentType}`,
+    )
   }
 
   const content = form.get("c")?.content
@@ -60,7 +79,7 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
   const isPrivate = form.get("p")
   const passwdFromForm = form.get("s") && decode(form.get("s")!.content)
   const expire: string =
-    (form.has("e") && form.get("e")!.content.byteLength > 0)
+    form.has("e") && form.get("e")!.content.byteLength > 0
       ? decode(form.get("e")!.content)
       : env.DEFAULT_EXPIRATION
 
@@ -87,15 +106,24 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
   }
 
   function makeResponse(created: PasteResponse, now: Date): Response {
-    return new Response(JSON.stringify({
-      ...created,
-      expiredAt: new Date(now.getTime() + 1000. * created.expirationSeconds).toISOString(),
-    }, null, 2), {
-      headers: { "content-type": "application/json;charset=UTF-8" },
-    })
+    return new Response(
+      JSON.stringify(
+        {
+          ...created,
+          expiredAt: new Date(
+            now.getTime() + 1000 * created.expirationSeconds,
+          ).toISOString(),
+        },
+        null,
+        2,
+      ),
+      {
+        headers: { "content-type": "application/json;charset=UTF-8" },
+      },
+    )
   }
 
-  function accessUrl(short: string): string{
+  function accessUrl(short: string): string {
     return env.BASE_URL + "/" + short
   }
 
@@ -113,9 +141,16 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
     } else if (passwd === undefined) {
       throw new WorkerError(403, `no password for paste '${nameFromPath}`)
     } else if (passwd !== originalMetadata.passwd) {
-        throw new WorkerError(403, `incorrect password for paste '${nameFromPath}`)
+      throw new WorkerError(
+        403,
+        `incorrect password for paste '${nameFromPath}`,
+      )
     } else {
-      let pasteName = nameFromPath || genRandStr(isPrivate ? params.PRIVATE_PASTE_NAME_LEN : params.PASTE_NAME_LEN)
+      let pasteName =
+        nameFromPath ||
+        genRandStr(
+          isPrivate ? params.PRIVATE_PASTE_NAME_LEN : params.PASTE_NAME_LEN,
+        )
       let newPasswd = passwdFromForm || passwd
       await updatePaste(env, pasteName, content, originalMetadata, {
         expirationSeconds,
@@ -123,22 +158,27 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
         passwd: newPasswd,
         filename,
       })
-      return makeResponse({
-        url: accessUrl(pasteName),
-        suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
-        manageUrl: manageUrl(pasteName, newPasswd),
-        expirationSeconds,
-      }, now)
+      return makeResponse(
+        {
+          url: accessUrl(pasteName),
+          suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
+          manageUrl: manageUrl(pasteName, newPasswd),
+          expirationSeconds,
+        },
+        now,
+      )
     }
   } else {
     let pasteName: string | undefined
     if (nameFromForm !== undefined) {
       pasteName = "~" + nameFromForm
-      if (!await pasteNameAvailable(env, pasteName)) {
+      if (!(await pasteNameAvailable(env, pasteName))) {
         throw new WorkerError(409, `name '${pasteName}' is already used`)
       }
     } else {
-      pasteName = genRandStr(isPrivate ? params.PRIVATE_PASTE_NAME_LEN : params.PASTE_NAME_LEN)
+      pasteName = genRandStr(
+        isPrivate ? params.PRIVATE_PASTE_NAME_LEN : params.PASTE_NAME_LEN,
+      )
     }
 
     let passwd = passwdFromForm || genRandStr(params.DEFAULT_PASSWD_LEN)
@@ -152,11 +192,14 @@ export async function handlePostOrPut(request: Request, env: Env, ctx: Execution
       filename,
     })
 
-    return makeResponse({
+    return makeResponse(
+      {
         url: accessUrl(pasteName),
         suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
         manageUrl: manageUrl(pasteName, passwd),
         expirationSeconds,
-    }, now)
+      },
+      now,
+    )
   }
 }

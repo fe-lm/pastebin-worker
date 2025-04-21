@@ -3,10 +3,15 @@ import { test, expect } from "vitest"
 import { params, genRandStr } from "../src/common"
 
 import {
-  genRandomBlob, areBlobsEqual, createFormData, workerFetch, upload,
-  BASE_URL, RAND_NAME_REGEX
+  genRandomBlob,
+  areBlobsEqual,
+  createFormData,
+  workerFetch,
+  upload,
+  BASE_URL,
+  RAND_NAME_REGEX,
 } from "./testUtils.js"
-import {createExecutionContext} from "cloudflare:test";
+import { createExecutionContext } from "cloudflare:test"
 
 test("basic", async () => {
   const blob1 = genRandomBlob(1024)
@@ -14,10 +19,13 @@ test("basic", async () => {
   const ctx = createExecutionContext()
 
   // upload
-  const uploadResponse = await workerFetch(ctx, new Request(`${BASE_URL}`, {
-    method: "POST",
-    body: createFormData({ "c": blob1 }),
-  }))
+  const uploadResponse = await workerFetch(
+    ctx,
+    new Request(`${BASE_URL}`, {
+      method: "POST",
+      body: createFormData({ c: blob1 }),
+    }),
+  )
   expect(uploadResponse.status).toStrictEqual(200)
   const responseJson = JSON.parse(await uploadResponse.text())
 
@@ -34,7 +42,9 @@ test("basic", async () => {
   const manageUrl = responseJson["manageUrl"]
   expect(manageUrl).toBeDefined
   expect(manageUrl.startsWith(BASE_URL))
-  expect(manageUrl.slice(BASE_URL.length + 1, manageUrl.lastIndexOf(":"))).toStrictEqual(name)
+  expect(
+    manageUrl.slice(BASE_URL.length + 1, manageUrl.lastIndexOf(":")),
+  ).toStrictEqual(name)
 
   // check passwd
   const passwd = manageUrl.slice(manageUrl.lastIndexOf(":") + 1)
@@ -49,8 +59,11 @@ test("basic", async () => {
   let newName
   do {
     newName = genRandStr(params.PASTE_NAME_LEN)
-  } while (newName === name)  // roll until finding a different name
-  const missingResponse = await workerFetch(ctx, new Request(`${BASE_URL}/${newName}`))
+  } while (newName === name) // roll until finding a different name
+  const missingResponse = await workerFetch(
+    ctx,
+    new Request(`${BASE_URL}/${newName}`),
+  )
   expect(missingResponse.status).toStrictEqual(404)
 
   // check modify with wrong manageUrl
@@ -58,16 +71,26 @@ test("basic", async () => {
   do {
     wrongPasswd = genRandStr(params.DEFAULT_PASSWD_LEN)
   } while (wrongPasswd === passwd)
-  expect((await workerFetch(ctx, new Request(`${url}:${wrongPasswd}`, {
-    method: "PUT",
-    body: createFormData({ "c": blob2 }),
-  }))).status).toStrictEqual(403)
+  expect(
+    (
+      await workerFetch(
+        ctx,
+        new Request(`${url}:${wrongPasswd}`, {
+          method: "PUT",
+          body: createFormData({ c: blob2 }),
+        }),
+      )
+    ).status,
+  ).toStrictEqual(403)
 
   // check modify
-  const putResponse = await workerFetch(ctx, new Request(manageUrl, {
-    method: "PUT",
-    body: createFormData({ "c": blob2 }),
-  }))
+  const putResponse = await workerFetch(
+    ctx,
+    new Request(manageUrl, {
+      method: "PUT",
+      body: createFormData({ c: blob2 }),
+    }),
+  )
   expect(putResponse.status).toStrictEqual(200)
   const putResponseJson = JSON.parse(await putResponse.text())
   expect(putResponseJson["url"]).toStrictEqual(url)
@@ -80,13 +103,22 @@ test("basic", async () => {
   expect(await areBlobsEqual(revisitBlob, blob2)).toBeTruthy()
 
   // check delete with wrong manageUrl
-  expect((await workerFetch(ctx, new Request(`${url}:${wrongPasswd}`, {
-      method: "DELETE",
-    },
-  ))).status).toStrictEqual(403)
+  expect(
+    (
+      await workerFetch(
+        ctx,
+        new Request(`${url}:${wrongPasswd}`, {
+          method: "DELETE",
+        }),
+      )
+    ).status,
+  ).toStrictEqual(403)
 
   // check delete
-  const deleteResponse = await workerFetch(ctx, new Request(manageUrl, { method: "DELETE" }))
+  const deleteResponse = await workerFetch(
+    ctx,
+    new Request(manageUrl, { method: "DELETE" }),
+  )
   expect(deleteResponse.status).toStrictEqual(200)
 
   // check visit modified
@@ -99,10 +131,13 @@ test("upload long", async () => {
   const ctx = createExecutionContext()
 
   // upload
-  const uploadResponse = await workerFetch(ctx, new Request(BASE_URL, {
-    method: "POST",
-    body: createFormData({ "c": blob1, "p": "1" }),
-  }))
+  const uploadResponse = await workerFetch(
+    ctx,
+    new Request(BASE_URL, {
+      method: "POST",
+      body: createFormData({ c: blob1, p: "1" }),
+    }),
+  )
   expect(uploadResponse.status).toStrictEqual(200)
   const responseJson = JSON.parse(await uploadResponse.text())
 
@@ -125,7 +160,7 @@ test("expire", async () => {
   const blob1 = genRandomBlob(1024)
   const ctx = createExecutionContext()
   async function testExpireParse(expire: string, expireSecs: number | null) {
-    const responseJson = await upload(ctx, { "c": blob1, "e": expire })
+    const responseJson = await upload(ctx, { c: blob1, e: expire })
     expect(responseJson["expirationSeconds"]).toStrictEqual(expireSecs)
   }
 
@@ -133,15 +168,18 @@ test("expire", async () => {
   await testExpireParse("100m", 6000)
   await testExpireParse("100h", 360000)
   await testExpireParse("1d", 86400)
-  await testExpireParse("100d", 2592000)  // longer expiration will be clipped to 30d
+  await testExpireParse("100d", 2592000) // longer expiration will be clipped to 30d
   await testExpireParse("100  m", 6000)
   await testExpireParse("", 604800)
 
   const testFailParse = async (expire: string) => {
-    const uploadResponse = await workerFetch(ctx, new Request(BASE_URL, {
-      method: "POST",
-      body: createFormData({ "c": blob1, "e": expire }),
-    }))
+    const uploadResponse = await workerFetch(
+      ctx,
+      new Request(BASE_URL, {
+        method: "POST",
+        body: createFormData({ c: blob1, e: expire }),
+      }),
+    )
     expect(uploadResponse.status).toStrictEqual(400)
   }
 
@@ -157,18 +195,21 @@ test("custom path", async () => {
   // check bad names
   const badNames = ["a", "ab", "..."]
   for (const name of badNames) {
-    const uploadResponse = await workerFetch(ctx, new Request(BASE_URL, {
-      method: "POST",
-      body: createFormData({ "c": blob1, "n": name }),
-    }))
+    const uploadResponse = await workerFetch(
+      ctx,
+      new Request(BASE_URL, {
+        method: "POST",
+        body: createFormData({ c: blob1, n: name }),
+      }),
+    )
     expect(uploadResponse.status).toStrictEqual(400)
   }
 
   // check good name upload
   const goodName = "goodName123+_-[]*$@,;"
   const uploadResponseJson = await upload(ctx, {
-    "c": blob1,
-    "n": goodName,
+    c: blob1,
+    n: goodName,
   })
   expect(uploadResponseJson["url"]).toStrictEqual(`${BASE_URL}/~${goodName}`)
 
@@ -185,8 +226,8 @@ test("custom passwd", async () => {
   // check good name upload
   const passwd = genRandStr(30)
   const uploadResponseJson = await upload(ctx, {
-    "c": blob1,
-    "s": passwd,
+    c: blob1,
+    s: passwd,
   })
   const url = uploadResponseJson["url"]
   const manageUrl = uploadResponseJson["manageUrl"]
@@ -198,20 +239,30 @@ test("custom passwd", async () => {
   do {
     wrongPasswd = genRandStr(params.DEFAULT_PASSWD_LEN)
   } while (wrongPasswd === passwd)
-  expect((await workerFetch(ctx, new Request(`${url}:${wrongPasswd}`, {
-    method: "PUT",
-    body: createFormData({ "c": blob1 }),
-  }))).status).toStrictEqual(403)
+  expect(
+    (
+      await workerFetch(
+        ctx,
+        new Request(`${url}:${wrongPasswd}`, {
+          method: "PUT",
+          body: createFormData({ c: blob1 }),
+        }),
+      )
+    ).status,
+  ).toStrictEqual(403)
 
   // check modify
-  const putResponse = await workerFetch(ctx, new Request(manageUrl, {
-    method: "PUT",
-    body: createFormData({ "c": blob1, "s": wrongPasswd }),
-  }))
+  const putResponse = await workerFetch(
+    ctx,
+    new Request(manageUrl, {
+      method: "PUT",
+      body: createFormData({ c: blob1, s: wrongPasswd }),
+    }),
+  )
   expect(putResponse.status).toStrictEqual(200)
   const putResponseJson = JSON.parse(await putResponse.text())
-  expect(putResponseJson["url"]).toStrictEqual(url)  // url will not change
-  expect(putResponseJson["manageUrl"]).toStrictEqual(`${url}:${wrongPasswd}`)  // passwd may change
+  expect(putResponseJson["url"]).toStrictEqual(url) // url will not change
+  expect(putResponseJson["manageUrl"]).toStrictEqual(`${url}:${wrongPasswd}`) // passwd may change
 })
 
 // TODO: add tests for CORS

@@ -6,7 +6,7 @@ import indexJsIn from "../../frontend/index.js.in"
 import tosMd from "../../frontend/tos.md"
 import apiMd from "../../doc/api.md"
 
-function indexPage(env: Env): string{
+function indexPage(env: Env): string {
   return indexHtml
     .replace("{{CSS}}", styleCss)
     .replace("{{INDEX_JS}}", indexJsIn)
