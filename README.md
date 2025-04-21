@@ -109,14 +109,15 @@ Run tests:
 $ yarn test
 ```
 
-Run typing check:
-
-```console
-$ yarn tsc --noEmit
-```
-
 Run tests with coverage report:
 
 ```console
 $ yarn coverage
+```
+
+Remember to run eslint checks and prettier before commiting your code.
+
+```console
+$ yarn fmt
+$ yarn lint
 ```
