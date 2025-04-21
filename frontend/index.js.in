@@ -68,7 +68,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let customName = '', manageUrl = '', file = null
 
   const NAME_REGEX = /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/
-  const EXPIRE_REGEX = /^\d+\s*[smhdwMY]?$/
+  const EXPIRE_REGEX = /^\d+\s*[smhd]?$/
   const submitButton = $('#submit-button')
   const deleteButton = $('#delete-button')
   const pasteEditArea = $('#paste-textarea')
