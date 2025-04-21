@@ -7,6 +7,10 @@ test("mime type", async () => {
   const ctx = createExecutionContext()
   const url = (await upload(ctx, ({ "c": genRandomBlob(1024) })))["url"]
 
+  const url_pic = (await upload(ctx, {
+    "c": {content: genRandomBlob(1024), filename: "xx.jpg"}
+  }))["url"]
+
   async function testMime(accessUrl: string, mime: string) {
     const resp = await workerFetch(ctx, accessUrl)
     expect(resp.headers.get("Content-Type")).toStrictEqual(mime)
@@ -18,6 +22,9 @@ test("mime type", async () => {
   await testMime(`${url}?mime=random-mime`, "random-mime;charset=UTF-8")
   await testMime(`${url}.jpg?mime=random-mime`, "random-mime;charset=UTF-8")
   await testMime(`${url}/test.jpg?mime=random-mime`, "random-mime;charset=UTF-8")
+
+  await testMime(url_pic, "image/jpeg;charset=UTF-8")
+  await testMime(`${url_pic}.png`, "image/png;charset=UTF-8")
 })
 
 test("cache control", async () => {

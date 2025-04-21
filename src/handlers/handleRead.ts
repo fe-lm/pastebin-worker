@@ -44,8 +44,6 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
     })
   }
 
-  const inferred_mime = url.searchParams.get("mime") || (ext && mime.getType(ext)) || "text/plain"
-
   const disp = url.searchParams.has("a") ? "attachment" : "inline"
 
   const item = await getPaste(env, nameFromPath)
@@ -57,6 +55,12 @@ export async function handleGet(request: Request, env: Env, _: ExecutionContext)
 
   // check `if-modified-since`
   const pasteLastModifiedUnix = item.metadata.lastModifiedAtUnix
+
+  const inferred_mime = url.searchParams.get("mime")
+    || (ext && mime.getType(ext))
+    || (item.metadata.filename && mime.getType(item.metadata.filename))
+    || "text/plain"
+
   const headerModifiedSince = request.headers.get("if-modified-since")
   if (headerModifiedSince) {
     const headerModifiedSinceUnix = Date.parse(headerModifiedSince) / 1000

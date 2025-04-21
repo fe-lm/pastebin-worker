@@ -8,7 +8,7 @@ Return the index page.
 
 Fetch the paste with name `<name>`. By default, it will return the raw content of the paste.
 
-The `Content-Type` header is set to `text/plain;charset=UTF-8`. If `<ext>` is given, the worker will infer mime-type from `<ext>` and change `Content-Type`. This method accepts the following query string parameters:
+The `Content-Type` header is set to `text/plain;charset=UTF-8`. If `<ext>` is given, the worker will infer mime-type from `<ext>` and change `Content-Type`. If the paste is uploaded with a filename, the worker will infer mime-type from the filename. This method accepts the following query string parameters:
 
 The `Content-Disposition` header is set to `inline` by default. But can be overriden by `?a` query string. If the paste is uploaded with filename, or `<filename>` is set in given request URL, `Content-Disposition` is appended with `filename*` indicating the filename (with `<ext>` if it exists).
 
