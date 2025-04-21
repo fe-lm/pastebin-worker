@@ -124,7 +124,7 @@ Upload your paste. It accept parameters in form-data:
 
 - `c`: mandatory. The **content** of your paste, text of binary. It should be no larger than 10 MB. The `filename` in its `Content-Disposition` will be present when fetching the paste.
 
-- `e`: optional. The **expiration** time of the paste. After this period of time, the paste is permanently deleted. It should be an integer or a float point number suffixed with an optional unit (seconds by default). Supported units: `s` (seconds), `m` (minutes), `h` (hours), `d` (days), `M` (months). For example, `360.24` means 360.25 seconds; `25d` is interpreted as 25 days. The actual expiration might be shorter than specified expiration due to limitations imposed by the administrator. If unspecified, a default expiration time setting is used.
+- `e`: optional. The **expiration** time of the paste. After this period of time, the paste is permanently deleted. It should be an integer or a float point number suffixed with an optional unit (seconds by default). Supported units: `s` (seconds), `m` (minutes), `h` (hours), `d` (days). For example, `360.24` means 360.25 seconds; `25d` is interpreted as 25 days. The actual expiration might be shorter than specified expiration due to limitations imposed by the administrator. If unspecified, a default expiration time setting is used.
 
 - `s`: optional. The **password** which allows you to modify and delete the paste. If not specified, the worker will generate a random string as password.
 

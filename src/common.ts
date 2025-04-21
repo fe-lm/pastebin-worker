@@ -112,7 +112,7 @@ export function parsePath(pathname: string): ParsedPath {
 }
 
 export function parseExpiration(expirationStr: string): number {
-  const EXPIRE_REGEX = /^[\d.]+\s*[smhdwMY]?$/
+  const EXPIRE_REGEX = /^[\d.]+\s*[smhd]?$/
   if (!EXPIRE_REGEX.test(expirationStr)) {
     throw new WorkerError(400, `‘${expirationStr}’ is not a valid expiration specification`)
   }
@@ -122,9 +122,6 @@ export function parseExpiration(expirationStr: string): number {
   if (lastChar === 'm') expirationSeconds *= 60
   else if (lastChar === 'h') expirationSeconds *= 3600
   else if (lastChar === 'd') expirationSeconds *= 3600 * 24
-  else if (lastChar === 'w') expirationSeconds *= 3600 * 24 * 7
-  else if (lastChar === 'M') expirationSeconds *= 3600 * 24 * 30
-  else if (lastChar === 'Y') expirationSeconds *= 3600 * 24 * 365
   return expirationSeconds
 }
 
