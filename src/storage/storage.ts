@@ -21,7 +21,7 @@ export async function getPaste(
   env: Env,
   short: string,
 ): Promise<PasteWithMetadata | null> {
-  let item = await env.PB.getWithMetadata<PasteMetadata>(short, {
+  const item = await env.PB.getWithMetadata<PasteMetadata>(short, {
     type: "arrayBuffer",
   })
 
@@ -38,7 +38,7 @@ export async function getPaste(
     if (Math.random() < 0.01) {
       item.metadata.accessCounter += 1
       try {
-        env.PB.put(short, item.value, {
+        await env.PB.put(short, item.value, {
           metadata: item.metadata,
           expiration: item.metadata.willExpireAtUnix,
         })
@@ -61,7 +61,7 @@ export async function getPasteMetadata(
   env: Env,
   short: string,
 ): Promise<PasteMetadata | null> {
-  let item = await env.PB.getWithMetadata<PasteMetadata>(short, {
+  const item = await env.PB.getWithMetadata<PasteMetadata>(short, {
     type: "stream",
   })
 

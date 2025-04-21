@@ -2,9 +2,11 @@ import { env } from "cloudflare:test"
 
 import { expect } from "vitest"
 import crypto from "crypto"
-import worker from "../src/index.js"
 
-export const BASE_URL = env["BASE_URL"]
+import worker from "../src/index.js"
+import { PasteResponse } from "../src/handlers/handleWrite"
+
+export const BASE_URL: string = env["BASE_URL"]
 export const RAND_NAME_REGEX =
   /^[ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678]+$/
 
@@ -18,7 +20,6 @@ export const staticPages = [
   "api.html",
 ]
 
-type BasicAuthInfo = { [user: string]: string }
 type FormDataBuild = {
   [key: string]: string | Blob | { content: Blob; filename: string }
 }
@@ -32,7 +33,10 @@ export async function workerFetch(
   return await worker.fetch(new Request(req), env, ctx)
 }
 
-export async function upload(ctx: ExecutionContext, kv: FormDataBuild) {
+export async function upload(
+  ctx: ExecutionContext,
+  kv: FormDataBuild,
+): Promise<PasteResponse> {
   const uploadResponse = await workerFetch(
     ctx,
     new Request(BASE_URL, {
@@ -48,19 +52,19 @@ export async function upload(ctx: ExecutionContext, kv: FormDataBuild) {
   expect(uploadResponse.headers.get("Content-Type")).toStrictEqual(
     "application/json;charset=UTF-8",
   )
-  return JSON.parse(await uploadResponse.text())
+  return JSON.parse(await uploadResponse.text()) as PasteResponse
 }
 
 export function createFormData(kv: FormDataBuild): FormData {
   const fd = new FormData()
   Object.entries(kv).forEach(([k, v]) => {
     if (typeof v === "string") {
-      fd.set(k, v as string)
+      fd.set(k, v)
     } else if (v instanceof Blob) {
-      fd.set(k, v as Blob)
+      fd.set(k, v)
     } else {
       // hack for typing
-      let { content, filename } = v as { content: Blob; filename: string }
+      const { content, filename } = v as { content: Blob; filename: string }
       fd.set(k, content, filename)
     }
   })

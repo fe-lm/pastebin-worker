@@ -103,7 +103,7 @@ export function parseFormdata(
         break
       }
     }
-    let key = decode(line.slice(0, curIdx + 1))
+    const key = decode(line.slice(0, curIdx + 1))
 
     curIdx++ // now curIdx points to the next char after ':'
     while (curIdx < line.length) {
@@ -114,7 +114,7 @@ export function parseFormdata(
       }
     }
 
-    let value = decode(line.slice(curIdx))
+    const value = decode(line.slice(curIdx))
     return [key, value]
   }
 
@@ -144,8 +144,6 @@ export function parseFormdata(
     return LineType.NORMAL
   }
 
-  let decoder = new TextDecoder()
-
   enum DecoderState {
     WANT_HEADER,
     WANT_BODY,
@@ -154,12 +152,12 @@ export function parseFormdata(
   // 0: expecting a header
   // 1: expecting body or boundary
   let state = DecoderState.WANT_HEADER
-  let parts: Map<string, FormDataPart> = new Map()
+  const parts: Map<string, FormDataPart> = new Map()
   let lineStart = readLine(0) + 2
 
   let bodyStartIdx = 0
   let curDisposition: FormDataDisposition | undefined = undefined
-  let curHeaders: Map<string, string> = new Map()
+  const curHeaders: Map<string, string> = new Map()
 
   while (true) {
     const lineEnd = readLine(lineStart)
@@ -181,7 +179,7 @@ export function parseFormdata(
       const lineType = getLineType(line)
       if (lineType !== LineType.NORMAL) {
         // current line is boundary or EOF
-        let content = uint8Array.subarray(bodyStartIdx, lineStart - 2)
+        const content = uint8Array.subarray(bodyStartIdx, lineStart - 2)
         parts.set(curDisposition!.name, {
           disposition: curDisposition!,
           headers: curHeaders,

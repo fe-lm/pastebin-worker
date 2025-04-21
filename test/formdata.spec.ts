@@ -1,7 +1,7 @@
 import { parseFormdata } from "../src/parseFormdata.js"
 import { test, expect } from "vitest"
 
-test("basic formdata", async () => {
+test("basic formdata", () => {
   const boundary = "-----------------------------27048489924104183609341311243"
   const boundaryLine = `--${boundary}\r\n`
   const endLine = `--${boundary}--`

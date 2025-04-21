@@ -12,6 +12,7 @@
     "delete-paste": "wrangler kv:key delete --binding PB",
     "test": "vitest",
     "fmt": "prettier --write .",
+    "lint": "eslint .",
     "coverage": "vitest run --coverage"
   },
   "author": "SharzyL <me@sharzy.in>",
@@ -24,6 +25,7 @@
     "eslint": "^9.25.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1",
     "vitest": "3.1.1",
     "wrangler": "^4.12.0"
   },

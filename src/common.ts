@@ -1,8 +1,6 @@
-import { FormDataDisposition } from "./parseFormdata.js"
-
 export const params = {
   CHAR_GEN: "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",
-  NAME_REGEX: /^[a-zA-Z0-9+_\-\[\]*$@,;]{3,}$/,
+  NAME_REGEX: /^[a-zA-Z0-9+_\-[\]*$@,;]{3,}$/,
   PASTE_NAME_LEN: 4,
   PRIVATE_PASTE_NAME_LEN: 24,
   DEFAULT_PASSWD_LEN: 24,
@@ -29,8 +27,8 @@ export function atob_utf8(value: string): string {
 
 export class WorkerError extends Error {
   public statusCode: number
-  constructor(statusCode: number, ...params: any[]) {
-    super(...params)
+  constructor(statusCode: number, msg: string) {
+    super(msg)
     this.statusCode = statusCode
   }
 }
@@ -79,7 +77,7 @@ export function parsePath(pathname: string): ParsedPath {
   }
 
   // extract and remove filename
-  let startOfFilename = pathname.lastIndexOf("/")
+  const startOfFilename = pathname.lastIndexOf("/")
   if (startOfFilename >= 0) {
     filename = pathname.slice(startOfFilename + 1)
     pathname = pathname.slice(0, startOfFilename)
@@ -87,12 +85,12 @@ export function parsePath(pathname: string): ParsedPath {
 
   // if having filename, parse ext from filename, else from remaining pathname
   if (filename) {
-    let startOfExt = filename.indexOf(".")
+    const startOfExt = filename.indexOf(".")
     if (startOfExt >= 0) {
       ext = filename.slice(startOfExt)
     }
   } else {
-    let startOfExt = pathname.indexOf(".")
+    const startOfExt = pathname.indexOf(".")
     if (startOfExt >= 0) {
       ext = pathname.slice(startOfExt)
       pathname = pathname.slice(0, startOfExt)

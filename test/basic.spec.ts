@@ -12,6 +12,7 @@ import {
   RAND_NAME_REGEX,
 } from "./testUtils.js"
 import { createExecutionContext } from "cloudflare:test"
+import { PasteResponse } from "../src/handlers/handleWrite"
 
 test("basic", async () => {
   const blob1 = genRandomBlob(1024)
@@ -27,20 +28,20 @@ test("basic", async () => {
     }),
   )
   expect(uploadResponse.status).toStrictEqual(200)
-  const responseJson = JSON.parse(await uploadResponse.text())
+  const responseJson = JSON.parse(await uploadResponse.text()) as PasteResponse
 
   // check url
-  const url = responseJson["url"]
+  const url: string = responseJson["url"]
   expect(url.startsWith(BASE_URL))
 
   // check name
-  const name = url.slice(BASE_URL.length + 1)
+  const name: string = url.slice(BASE_URL.length + 1)
   expect(name.length).toStrictEqual(params.PASTE_NAME_LEN)
   expect(RAND_NAME_REGEX.test(name))
 
   // check manageUrl
-  const manageUrl = responseJson["manageUrl"]
-  expect(manageUrl).toBeDefined
+  const manageUrl: string = responseJson["manageUrl"]
+  expect(manageUrl).toBeDefined()
   expect(manageUrl.startsWith(BASE_URL))
   expect(
     manageUrl.slice(BASE_URL.length + 1, manageUrl.lastIndexOf(":")),
@@ -92,7 +93,7 @@ test("basic", async () => {
     }),
   )
   expect(putResponse.status).toStrictEqual(200)
-  const putResponseJson = JSON.parse(await putResponse.text())
+  const putResponseJson = JSON.parse(await putResponse.text()) as PasteResponse
   expect(putResponseJson["url"]).toStrictEqual(url)
   expect(putResponseJson["manageUrl"]).toStrictEqual(manageUrl)
 
@@ -139,7 +140,7 @@ test("upload long", async () => {
     }),
   )
   expect(uploadResponse.status).toStrictEqual(200)
-  const responseJson = JSON.parse(await uploadResponse.text())
+  const responseJson = JSON.parse(await uploadResponse.text()) as PasteResponse
 
   // check url
   const url = responseJson["url"]
@@ -260,7 +261,7 @@ test("custom passwd", async () => {
     }),
   )
   expect(putResponse.status).toStrictEqual(200)
-  const putResponseJson = JSON.parse(await putResponse.text())
+  const putResponseJson = JSON.parse(await putResponse.text()) as PasteResponse
   expect(putResponseJson["url"]).toStrictEqual(url) // url will not change
   expect(putResponseJson["manageUrl"]).toStrictEqual(`${url}:${wrongPasswd}`) // passwd may change
 })

@@ -16,11 +16,12 @@ import {
   updatePaste,
 } from "../storage/storage.js"
 
-type PasteResponse = {
+export type PasteResponse = {
   url: string
   suggestedUrl?: string
   manageUrl: string
   expirationSeconds: number
+  expireAt: string
 }
 
 function suggestUrl(
@@ -63,7 +64,7 @@ export async function handlePostOrPut(
     const uint8Array = new Uint8Array(await request.arrayBuffer())
     try {
       form = parseFormdata(uint8Array, getBoundary(contentType))
-    } catch (e) {
+    } catch {
       throw new WorkerError(400, "error occurs when parsing formdata")
     }
   } else {
@@ -92,7 +93,7 @@ export async function handlePostOrPut(
 
   // parse expiration
   let expirationSeconds = parseExpiration(expire)
-  let maxExpiration = parseExpiration(env.MAX_EXPIRATION)
+  const maxExpiration = parseExpiration(env.MAX_EXPIRATION)
   if (expirationSeconds > maxExpiration) {
     expirationSeconds = maxExpiration
   }
@@ -105,22 +106,10 @@ export async function handlePostOrPut(
     )
   }
 
-  function makeResponse(created: PasteResponse, now: Date): Response {
-    return new Response(
-      JSON.stringify(
-        {
-          ...created,
-          expiredAt: new Date(
-            now.getTime() + 1000 * created.expirationSeconds,
-          ).toISOString(),
-        },
-        null,
-        2,
-      ),
-      {
-        headers: { "content-type": "application/json;charset=UTF-8" },
-      },
-    )
+  function makeResponse(created: PasteResponse): Response {
+    return new Response(JSON.stringify(created, null, 2), {
+      headers: { "content-type": "application/json;charset=UTF-8" },
+    })
   }
 
   function accessUrl(short: string): string {
@@ -131,7 +120,7 @@ export async function handlePostOrPut(
     return env.BASE_URL + "/" + short + params.SEP + passwd
   }
 
-  let now = new Date()
+  const now = new Date()
   if (isPut) {
     const { nameFromPath, passwd } = parsePath(url.pathname)
     const originalMetadata = await getPasteMetadata(env, nameFromPath)
@@ -146,27 +135,27 @@ export async function handlePostOrPut(
         `incorrect password for paste '${nameFromPath}`,
       )
     } else {
-      let pasteName =
+      const pasteName =
         nameFromPath ||
         genRandStr(
           isPrivate ? params.PRIVATE_PASTE_NAME_LEN : params.PASTE_NAME_LEN,
         )
-      let newPasswd = passwdFromForm || passwd
+      const newPasswd = passwdFromForm || passwd
       await updatePaste(env, pasteName, content, originalMetadata, {
         expirationSeconds,
         now,
         passwd: newPasswd,
         filename,
       })
-      return makeResponse(
-        {
-          url: accessUrl(pasteName),
-          suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
-          manageUrl: manageUrl(pasteName, newPasswd),
-          expirationSeconds,
-        },
-        now,
-      )
+      return makeResponse({
+        url: accessUrl(pasteName),
+        suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
+        manageUrl: manageUrl(pasteName, newPasswd),
+        expirationSeconds,
+        expireAt: new Date(
+          now.getTime() + 1000 * expirationSeconds,
+        ).toISOString(),
+      })
     }
   } else {
     let pasteName: string | undefined
@@ -181,25 +170,25 @@ export async function handlePostOrPut(
       )
     }
 
-    let passwd = passwdFromForm || genRandStr(params.DEFAULT_PASSWD_LEN)
+    const passwd = passwdFromForm || genRandStr(params.DEFAULT_PASSWD_LEN)
     if (passwd.length === 0) {
       throw new WorkerError(400, "Empty passwd is not allowed")
     }
-    await createPaste(env, pasteName!, content, {
+    await createPaste(env, pasteName, content, {
       expirationSeconds,
       now,
       passwd,
       filename,
     })
 
-    return makeResponse(
-      {
-        url: accessUrl(pasteName),
-        suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
-        manageUrl: manageUrl(pasteName, passwd),
-        expirationSeconds,
-      },
-      now,
-    )
+    return makeResponse({
+      url: accessUrl(pasteName),
+      suggestedUrl: suggestUrl(content, pasteName, env.BASE_URL, filename),
+      manageUrl: manageUrl(pasteName, passwd),
+      expirationSeconds,
+      expireAt: new Date(
+        now.getTime() + 1000 * expirationSeconds,
+      ).toISOString(),
+    })
   }
 }

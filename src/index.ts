@@ -39,7 +39,7 @@ async function handleRequest(
         }),
       )
     } else {
-      let err = e as Error
+      const err = e as Error
       console.log(err.stack)
       return corsWrapResponse(
         new Response(`Error 500: ${err.message}\n`, { status: 500 }),

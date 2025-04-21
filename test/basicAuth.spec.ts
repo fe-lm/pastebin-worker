@@ -9,8 +9,9 @@ import {
 } from "./testUtils.js"
 import { encodeBasicAuth, decodeBasicAuth } from "../src/auth.js"
 import { createExecutionContext, env } from "cloudflare:test"
+import { PasteResponse } from "../src/handlers/handleWrite"
 
-test("basic auth encode and decode", async () => {
+test("basic auth encode and decode", () => {
   const userPasswdPairs = [
     ["user1", "passwd1"],
     ["あおい", "まなか"],
@@ -83,7 +84,7 @@ test("basic auth", async () => {
   expect(uploadResp2.status).toStrictEqual(401)
 
   // revisit without auth
-  const uploadJson = JSON.parse(await uploadResp1.text())
+  const uploadJson = JSON.parse(await uploadResp1.text()) as PasteResponse
   const url = uploadJson["url"]
   const revisitResp = await workerFetch(ctx, url)
   expect(revisitResp.status).toStrictEqual(200)

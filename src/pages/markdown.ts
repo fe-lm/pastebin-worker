@@ -1,4 +1,5 @@
 import { unified } from "unified"
+import { Root } from "mdast"
 import remarkParse from "remark-parse"
 import remarkGfm from "remark-gfm"
 import remarkRehype from "remark-rehype"
@@ -15,8 +16,8 @@ type DocMetadata = {
   description: string
 }
 
-function getMetadata(options: { result: DocMetadata }): (tree: any) => void {
-  return (tree) => {
+function getMetadata(options: { result: DocMetadata }): (_: Root) => void {
+  return (tree: Root) => {
     if (tree.children.length === 0) return
 
     const firstChild = tree.children[0]

@@ -5,12 +5,12 @@ const corsHeaders = {
 }
 
 export function handleOptions(request: Request) {
-  let headers = request.headers
+  const headers = request.headers
   if (
     headers.get("Origin") !== null &&
     headers.get("Access-Control-Request-Method") !== null
   ) {
-    let respHeaders: { [name: string]: string } = corsHeaders
+    const respHeaders: { [name: string]: string } = corsHeaders
     if ("Access-Control-Request-Methods" in respHeaders) {
       respHeaders["Access-Control-Allow-Headers"] = request.headers.get(
         "Access-Control-Request-Headers",
