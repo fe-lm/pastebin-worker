@@ -9,6 +9,7 @@ export type PasteMetadata = {
   willExpireAtUnix: number
 
   accessCounter: number // a counter representing how frequent it is accessed, to administration usage
+  sizeBytes?: number,
   filename?: string
 }
 
@@ -100,6 +101,7 @@ export async function updatePaste(
       createdAtUnix: originalMetadata.createdAtUnix,
       willExpireAtUnix: expirationUnix,
       accessCounter: originalMetadata.accessCounter,
+      sizeBytes: content.byteLength,
     },
     expiration: expirationUnix,
   }
@@ -129,6 +131,7 @@ export async function createPaste(
       createdAtUnix: dateToUnix(options.now),
       willExpireAtUnix: expirationUnix,
       accessCounter: 0,
+      sizeBytes: content.byteLength,
     },
     expiration: expirationUnix,
   }
