@@ -34,7 +34,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["*.config.js"], // TODO: make them work
+    files: ["*.config.js"],
     extends: [tseslint.configs.disableTypeChecked],
   },
 )

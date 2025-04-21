@@ -92,7 +92,7 @@ $ yarn delete-paste <name-of-paste>
 List pastes:
 
 ```console
-$ yarn -s wrangler kv:key list --binding PB > kv_list.json
+$ yarn -s wrangler kv key list --binding PB > kv_list.json
 ```
 
 ## Development
