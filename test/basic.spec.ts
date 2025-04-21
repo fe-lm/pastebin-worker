@@ -135,7 +135,7 @@ test("expire", async () => {
   await testExpireParse("1d", 86400)
   await testExpireParse("100d", 2592000)  // longer expiration will be clipped to 30d
   await testExpireParse("100  m", 6000)
-  await testExpireParse("", 1209600)
+  await testExpireParse("", 604800)
 
   const testFailParse = async (expire: string) => {
     const uploadResponse = await workerFetch(ctx, new Request(BASE_URL, {
