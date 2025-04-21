@@ -9,7 +9,7 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev --var BASE_URL:http://localhost:8787 --port 8787",
     "build": "wrangler deploy --dry-run --outdir=dist",
-    "delete-paste": "wrangler kv:key delete --binding PB",
+    "delete-paste": "wrangler kv key delete --binding PB",
     "test": "vitest",
     "fmt": "prettier --write .",
     "lint": "eslint .",
@@ -36,8 +36,7 @@
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "unified": "^11.0.5",
-    "vfile-message": "^4.0.2"
+    "unified": "^11.0.5"
   },
   "resolutions": {
     "stringify-entities": "4.0.2"
