@@ -2,13 +2,14 @@ import { makeMarkdown } from "./markdown.js"
 
 import indexHtml from "../../frontend/index.html"
 import styleCss from "../../frontend/style.css"
+import githubCss from "../../frontend/github.css"
 import indexJsIn from "../../frontend/index.js.in"
 import tosMd from "../../frontend/tos.md"
 import apiMd from "../../doc/api.md"
 
 function indexPage(env: Env): string {
   return indexHtml
-    .replace("{{CSS}}", styleCss)
+    .replace("{{CSS}}", styleCss + githubCss)
     .replace("{{INDEX_JS}}", indexJsIn)
     .replaceAll("{{BASE_URL}}", env.BASE_URL)
     .replaceAll("{{REPO}}", env.REPO)
