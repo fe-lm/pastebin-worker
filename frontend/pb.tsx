@@ -76,7 +76,7 @@ export function PasteBin() {
   const systemDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)").matches : false
   const isDark = darkModeSelect === "system" ? systemDark : darkModeSelect === "dark"
 
-  function showErrorMsg(err: string, title: string) {
+  function showModal(err: string, title: string) {
     setModalErrMsg(err)
     setModalErrTitle(title)
     setModalOpen(true)
@@ -85,7 +85,7 @@ export function PasteBin() {
   async function reportResponseError(resp: Response, title: string) {
     const statusText = resp.statusText === "error" ? "Unknown error" : resp.statusText
     const errText = (await resp.text()) || statusText
-    showErrorMsg(errText, title)
+    showModal(errText, title)
   }
 
   const errorModal = (
@@ -96,6 +96,7 @@ export function PasteBin() {
         if (!open) {
           setIsPasteLoading(false)
           setIsLoading(false)
+          console.log("set false isLoading")
         }
       }}
     >
@@ -178,13 +179,13 @@ export function PasteBin() {
     const fd = new FormData()
     if (editKind === "file") {
       if (uploadFile === null) {
-        showErrorMsg("No file selected", "Error on preparing upload")
+        showModal("No file selected", "Error on preparing upload")
         return
       }
       fd.append("c", uploadFile)
     } else {
       if (pasteEdit.length === 0) {
-        showErrorMsg("Empty paste", "Error on preparing upload")
+        showModal("Empty paste", "Error on preparing upload")
         return
       }
       fd.append("c", pasteEdit)
@@ -212,11 +213,13 @@ export function PasteBin() {
       if (resp.ok) {
         const respParsed = JSON.parse(await resp.text()) as PasteResponse
         setPasteResponse(respParsed)
+        setIsLoading(false)
       } else {
         await reportResponseError(resp, `Error ${resp.status}`)
+        // will setIsLoading(false) on closing modal
       }
     } catch (e) {
-      showErrorMsg((e as Error).toString(), "Error on uploading paste")
+      showModal((e as Error).toString(), "Error on uploading paste")
       console.error(e)
     }
   }
@@ -227,12 +230,13 @@ export function PasteBin() {
         method: "DELETE",
       })
       if (resp.ok) {
+        showModal("It may takes 60 seconds for the deletion to propagate to the world", "Deletion succeeded")
         setPasteResponse(null)
       } else {
         await reportResponseError(resp, `Error ${resp.status}`)
       }
     } catch (e) {
-      showErrorMsg((e as Error).message, "Error on deleting paste")
+      showModal((e as Error).message, "Error on deleting paste")
       console.error(e)
     }
   }
