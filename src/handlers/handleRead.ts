@@ -115,11 +115,15 @@ export async function handleGet(request: Request, env: Env, ctx: ExecutionContex
   // check `if-modified-since`
   const pasteLastModifiedUnix = item.metadata.lastModifiedAtUnix
 
-  const inferred_mime =
+  let inferred_mime =
     url.searchParams.get("mime") ||
     (ext && mime.getType(ext)) ||
     (item.metadata.filename && mime.getType(item.metadata.filename)) ||
     "text/plain"
+
+  if (env.DISALLOWED_MIME_FOR_PASTE.includes(inferred_mime)) {
+    inferred_mime = "text/plain"
+  }
 
   const headerModifiedSince = request.headers.get("If-Modified-Since")
   if (headerModifiedSince) {

@@ -42,11 +42,11 @@ DEPLOY_URL = "https://shz.al"
 # url to repo, displayed in the index page
 REPO = "https://github.com/SharzyL/pastebin-worker"
 
-# the name displayed in TOS
-TOS_MAINTAINER = "Sharzy"
-
 # the page title displayed in index page
 INDEX_PAGE_TITLE = "Pastebin Worker"
+
+# the name displayed in TOS
+TOS_MAINTAINER = "Sharzy"
 
 # the email displayed in TOS
 TOS_MAIL = "pb@shz.al"
@@ -67,8 +67,11 @@ MAX_EXPIRATION = "30d"
 # Leave empty to disable auth
 BASIC_AUTH = {}
 
-# if file larger than this threshold, it will be stored in R2
+# Files larger than this threshold will be stored in R2
 R2_THRESHOLD = "100K"
 
-# file larger than this will be denied
+# File larger than this will be denied
 R2_MAX_ALLOWED = "100M"
+
+# The following mimetypes will be converted to text/plain
+DISALLOWED_MIME_FOR_PASTE = ["text/html"]

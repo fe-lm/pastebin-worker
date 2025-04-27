@@ -27,6 +27,10 @@ test("mime type", async () => {
 
   await testMime(url_pic, "image/jpeg;charset=UTF-8")
   await testMime(`${url_pic}.png`, "image/png;charset=UTF-8")
+
+  // test disallowed mimetypes
+  await testMime(`${url_pic}.html`, "text/plain;charset=UTF-8")
+  await testMime(`${url_pic}?mime=text/html`, "text/plain;charset=UTF-8")
 })
 
 test("cache control", async () => {
