@@ -83,27 +83,30 @@ test("content disposition without specifying filename", async () => {
 
 test("content disposition with specifying filename", async () => {
   const content = genRandomBlob(1024)
-  const filename = "hello.jpg"
-  const altFilename = "world.txt"
+  const filename = "りんご たいへん.jpg"
+  const filenameEncoded = encodeURIComponent(filename)
+  const altFilename = "التفاح"
+  const altFilenameEncoded = encodeURIComponent(altFilename)
+
   const ctx = createExecutionContext()
 
   const uploadResp = await upload(ctx, { c: { content, filename } })
-  const url = uploadResp["url"]
+  const url = uploadResp.url
 
-  expect(uploadResp["suggestedUrl"]).toStrictEqual(`${url}/${filename}`)
+  expect(uploadResp.suggestedUrl).toStrictEqual(`${url}/${filenameEncoded}`)
 
   expect((await workerFetch(ctx, url)).headers.get("Content-Disposition")).toStrictEqual(
-    `inline; filename*=UTF-8''${filename}`,
+    `inline; filename*=UTF-8''${filenameEncoded}`,
   )
   expect((await workerFetch(ctx, `${url}?a`)).headers.get("Content-Disposition")).toStrictEqual(
-    `attachment; filename*=UTF-8''${filename}`,
+    `attachment; filename*=UTF-8''${filenameEncoded}`,
   )
 
   expect((await workerFetch(ctx, `${url}/${altFilename}`)).headers.get("Content-Disposition")).toStrictEqual(
-    `inline; filename*=UTF-8''${altFilename}`,
+    `inline; filename*=UTF-8''${altFilenameEncoded}`,
   )
   expect((await workerFetch(ctx, `${url}/${altFilename}?a`)).headers.get("Content-Disposition")).toStrictEqual(
-    `attachment; filename*=UTF-8''${altFilename}`,
+    `attachment; filename*=UTF-8''${altFilenameEncoded}`,
   )
 })
 

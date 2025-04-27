@@ -96,7 +96,7 @@ export function parsePath(pathname: string): ParsedPath {
   // extract and remove filename
   const startOfFilename = pathname.lastIndexOf("/")
   if (startOfFilename >= 0) {
-    filename = pathname.slice(startOfFilename + 1)
+    filename = decodeURIComponent(pathname.slice(startOfFilename + 1))
     pathname = pathname.slice(0, startOfFilename)
   }
 

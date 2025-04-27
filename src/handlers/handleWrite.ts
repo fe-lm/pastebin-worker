@@ -17,7 +17,7 @@ import {
 
 function suggestUrl(short: string, baseUrl: string, filename?: string, contentAsString?: string) {
   if (filename) {
-    return `${baseUrl}/${short}/${filename}`
+    return `${baseUrl}/${short}/${encodeURIComponent(filename)}`
   } else if (contentAsString && isLegalUrl(contentAsString)) {
     return `${baseUrl}/u/${short}`
   } else {
