@@ -527,7 +527,7 @@ function PasteBin() {
         </Link>
         {" / "}
         <Link href={REPO} className="d-inline-block">
-          Github
+          Repository
         </Link>
       </p>
     </footer>
