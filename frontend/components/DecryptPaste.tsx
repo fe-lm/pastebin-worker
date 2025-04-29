@@ -141,11 +141,11 @@ export function DecryptPaste() {
 
   const showFileContent = pasteFile && (!isFileBinary || forceShowBinary)
 
-  const buttonClasses = "rounded-full bg-background hover:bg-gray-100"
+  const buttonClasses = "rounded-full bg-background hover:bg-default-100"
   return (
     <main
       className={
-        "flex flex-col items-center min-h-screen bg-background text-foreground w-full p-2" +
+        "flex flex-col items-center min-h-screen transition-transform-background bg-background text-foreground w-full p-2" +
         (shouldBeDark(darkModeSelect) ? " dark" : " light")
       }
     >

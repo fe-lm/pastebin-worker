@@ -278,7 +278,7 @@ export function PasteBin() {
   return (
     <main
       className={
-        "flex flex-col items-center min-h-screen font-sans bg-background text-foreground" +
+        "flex flex-col items-center min-h-screen font-sans transition-transform-background bg-background text-foreground" +
         (shouldBeDark(darkModeSelect) ? " dark" : " light")
       }
     >
