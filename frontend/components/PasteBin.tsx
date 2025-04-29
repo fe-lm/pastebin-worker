@@ -234,9 +234,9 @@ export function PasteBin() {
         <h1 className="text-3xl inline">{INDEX_PAGE_TITLE}</h1>
         <DarkModeToggle mode={darkModeSelect} onModeChange={setDarkModeSelect} className="absolute right-0" />
       </div>
-      <p className="my-2">This is an open source pastebin deployed on Cloudflare Workers. </p>
+      <p className="my-2">An open source pastebin deployed on Cloudflare Workers. </p>
       <p className="my-2">
-        <b>Usage</b>: paste any text here, submit, then share it with URL. (
+        <b>Usage</b>: Paste text or file here; submit; share it with a URL. (
         <Link href={`${BaseUrl}/api`}>API Documentation</Link>)
       </p>
       <p className="my-2">
