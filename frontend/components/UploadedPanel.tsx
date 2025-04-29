@@ -51,9 +51,11 @@ export function UploadedPanel({ pasteResponse, encryptionKey, ...rest }: Uploade
               <tr>
                 <td className={firstColClassNames}>Decryption URL</td>
                 <td className="w-full">
-                  <Snippet hideSymbol variant="bordered" classNames={snippetClassNames}>
-                    {pasteResponse && makeDecryptionUrl(pasteResponse.url, encryptionKey)}
-                  </Snippet>
+                  <Skeleton isLoaded={pasteResponse !== null} className="rounded-2xl grow">
+                    <Snippet hideSymbol variant="bordered" classNames={snippetClassNames}>
+                      {pasteResponse && makeDecryptionUrl(pasteResponse.url, encryptionKey)}
+                    </Snippet>
+                  </Skeleton>
                 </td>
               </tr>
             ) : null}

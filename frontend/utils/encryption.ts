@@ -14,7 +14,7 @@ function base64VariantEncode(src: Uint8Array): string {
   for (let i = 0; i < uint8Array.length; i++) {
     binaryString += String.fromCharCode(uint8Array[i])
   }
-  return btoa(binaryString).replaceAll("/", "_")
+  return btoa(binaryString).replaceAll("/", "_").replaceAll("=", "")
 }
 
 function base64VariantDecode(src: string): Uint8Array {

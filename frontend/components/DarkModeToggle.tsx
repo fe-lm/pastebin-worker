@@ -40,7 +40,7 @@ export function DarkModeToggle({ mode, onModeChange, className, ...rest }: MyCom
     <Tooltip content={`Toggle dark mode (currently ${mode})`}>
       <Button
         isIconOnly
-        className={"mr-2 rounded-full bg-background" + " " + className}
+        className={"mr-2 rounded-full bg-background hover:bg-gray-100" + " " + className}
         aria-label="Toggle dark mode"
         onPress={() => {
           const curModeIdx = icons.findIndex(({ name }) => name === mode)
