@@ -12,10 +12,10 @@ export const mockedPasteUpload: PasteResponse = {
 export const mockedPasteContent = "something"
 
 export const server = setupServer(
-  http.post("/", () => {
+  http.post(`${APIUrl}/`, () => {
     return HttpResponse.json(mockedPasteUpload)
   }),
-  http.get("/abcd", () => {
+  http.get(`${APIUrl}/abcd`, () => {
     return HttpResponse.text(mockedPasteContent)
   }),
 )
@@ -41,6 +41,7 @@ import { PasteResponse } from "../../shared/interfaces.js"
 import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
 import { stubBrowerFunctions, unStubBrowerFunctions } from "./testUtils.js"
+import { APIUrl } from "../utils/utils.js"
 
 describe("Pastebin", () => {
   it("can upload", async () => {

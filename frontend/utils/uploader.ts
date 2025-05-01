@@ -62,14 +62,13 @@ export async function uploadPaste(
   }
 
   const contentLength = typeof options.content === "string" ? options.content.length : options.content.size
-  const apiUrlOrManageUrl = options.isUpdate ? pasteSetting.manageUrl : APIUrl
 
   try {
     if (contentLength < 5 * 1024 * 1024) {
-      return await uploadNormal(apiUrlOrManageUrl, options)
+      return await uploadNormal(APIUrl, options)
     } else {
       if (onProgress) onProgress(0)
-      return await uploadMPU(apiUrlOrManageUrl, minChunkSize, options, (doneBytes, allBytes) => {
+      return await uploadMPU(APIUrl, minChunkSize, options, (doneBytes, allBytes) => {
         if (onProgress) onProgress((100 * doneBytes) / allBytes)
       })
     }

@@ -8,6 +8,7 @@ import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
 import { encodeKey, encrypt, genKey } from "../utils/encryption.js"
 import { stubBrowerFunctions, unStubBrowerFunctions } from "./testUtils.js"
+import { APIUrl } from "../utils/utils.js"
 
 describe("decrypt page", async () => {
   const scheme = "AES-GCM"
@@ -16,7 +17,7 @@ describe("decrypt page", async () => {
   const content = new Uint8Array(new TextEncoder().encode(contentString))
   const encrypted = await encrypt(scheme, key, content)
   const server = setupServer(
-    http.get("/abcd", () => {
+    http.get(`${APIUrl}/abcd`, () => {
       return HttpResponse.arrayBuffer(encrypted.buffer)
     }),
   )
