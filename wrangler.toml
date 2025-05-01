@@ -74,4 +74,4 @@ R2_THRESHOLD = "100K"
 R2_MAX_ALLOWED = "100M"
 
 # The following mimetypes will be converted to text/plain
-DISALLOWED_MIME_FOR_PASTE = ["text/html"]
+DISALLOWED_MIME_FOR_PASTE = ["text/html", "audio/x-mpegurl"]
