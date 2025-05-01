@@ -28,7 +28,7 @@ function suggestUrl(short: string, baseUrl: string, filename?: string, contentAs
 type ParsedMultipartPart = {
   filename?: string
   content: ReadableStream | ArrayBuffer
-  contentAsString?: string
+  contentAsString: () => string
   contentLength: number
 }
 
@@ -43,13 +43,14 @@ async function multipartToMap(req: Request, sizeLimit: number): Promise<Map<stri
             filename: part.filename,
             content: arrayBuffer,
             contentLength: arrayBuffer.byteLength,
+            contentAsString: () => decode(arrayBuffer),
           })
         } else {
           const arrayBuffer = await part.arrayBuffer()
           partsMap.set(part.name, {
             filename: part.filename,
             content: arrayBuffer,
-            contentAsString: decode(arrayBuffer),
+            contentAsString: () => decode(arrayBuffer),
             contentLength: arrayBuffer.byteLength,
           })
         }
@@ -112,17 +113,14 @@ export async function handlePostOrPut(
     throw new WorkerError(400, "cannot find content in formdata")
   }
   const { filename, content, contentAsString, contentLength } = parts.get("c")!
-  const nameFromForm = parts.get("n")?.contentAsString
+  const nameFromForm = parts.get("n")?.contentAsString()
   const isPrivate = parts.has("p")
-  const passwdFromForm = parts.get("s")?.contentAsString
-  const expireFromForm: string | undefined = parts.get("e")?.contentAsString
-  const encryptionScheme: string | undefined = parts.get("encryption-scheme")?.contentAsString
+  const passwdFromForm = parts.get("s")?.contentAsString()
+  const expireFromForm: string | undefined = parts.get("e")?.contentAsString()
+  const encryptionScheme: string | undefined = parts.get("encryption-scheme")?.contentAsString()
   const expire = expireFromForm ? expireFromForm : env.DEFAULT_EXPIRATION
 
-  if (isMPUComplete && contentAsString === undefined) {
-    throw new WorkerError(400, `field c in formdata mistakenly carries a filename for MPU complete`)
-  }
-  const uploadedParts = isMPUComplete ? (JSON.parse(contentAsString!) as R2UploadedPart[]) : undefined
+  const uploadedParts = isMPUComplete ? (JSON.parse(contentAsString()) as R2UploadedPart[]) : undefined
 
   // parse expiration
   let expirationSeconds = parseExpiration(expire)
@@ -212,7 +210,7 @@ export async function handlePostOrPut(
     return makeResponse(
       {
         url: accessUrl(pasteName),
-        suggestedUrl: suggestUrl(pasteName, env.DEPLOY_URL, filename, contentAsString),
+        suggestedUrl: suggestUrl(pasteName, env.DEPLOY_URL, filename, contentAsString()),
         manageUrl: manageUrl(pasteName, newPasswd),
         expirationSeconds,
         expireAt: new Date(now.getTime() + 1000 * expirationSeconds).toISOString(),
@@ -252,7 +250,7 @@ export async function handlePostOrPut(
     return makeResponse(
       {
         url: accessUrl(pasteName),
-        suggestedUrl: suggestUrl(pasteName, env.DEPLOY_URL, filename, contentAsString),
+        suggestedUrl: suggestUrl(pasteName, env.DEPLOY_URL, filename, contentAsString()),
         manageUrl: manageUrl(pasteName, password),
         expirationSeconds,
         expireAt: new Date(now.getTime() + 1000 * expirationSeconds).toISOString(),

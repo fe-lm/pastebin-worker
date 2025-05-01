@@ -1,4 +1,4 @@
-import { uploadMPU } from "../../shared/uploadMPU"
+import { uploadMPU } from "../../shared/uploadPaste"
 import { vi, test, describe, it, expect, afterAll, beforeEach } from "vitest"
 import { createExecutionContext } from "cloudflare:test"
 import { areBlobsEqual, BASE_URL, genRandomBlob, workerFetch } from "./testUtils"

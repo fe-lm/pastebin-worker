@@ -3,7 +3,7 @@ import type { PasteEditState } from "../components/PasteEditor.js"
 import { APIUrl, ErrorWithTitle } from "./utils.js"
 import type { PasteResponse } from "../../shared/interfaces.js"
 import { encodeKey, encrypt, EncryptionScheme, genKey } from "./encryption.js"
-import { UploadError, uploadMPU, uploadNormal, UploadOptions } from "../../shared/uploadMPU.js"
+import { UploadError, uploadMPU, uploadNormal, UploadOptions } from "../../shared/uploadPaste.js"
 
 async function genAndEncrypt(scheme: EncryptionScheme, content: string | Uint8Array) {
   const key = await genKey(scheme)
@@ -64,7 +64,7 @@ export async function uploadPaste(
   const contentLength = typeof options.content === "string" ? options.content.length : options.content.size
 
   try {
-    if (contentLength < 5 * 1024 * 1024) {
+    if (contentLength < 5 * 1024 * 1024 || typeof options.content === "string") {
       return await uploadNormal(APIUrl, options)
     } else {
       if (onProgress) onProgress(0)

@@ -133,7 +133,7 @@ export async function uploadMPU(
   completeUrl.searchParams.set("name", createResp.name)
   completeUrl.searchParams.set("key", createResp.key)
   completeUrl.searchParams.set("uploadId", createResp.uploadId)
-  completeFormData.set("c", JSON.stringify(uploadedParts))
+  completeFormData.set("c", new File([JSON.stringify(uploadedParts)], content.name))
   if (expire !== undefined) {
     completeFormData.set("e", expire)
   }
