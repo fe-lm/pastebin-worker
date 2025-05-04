@@ -159,7 +159,7 @@ export function DisplayPaste() {
           {pasteFile && (
             <Tooltip content={`Download as file`}>
               <Button aria-label="Download" isIconOnly className={buttonClasses}>
-                <a href={URL.createObjectURL(pasteFile)}>
+                <a href={URL.createObjectURL(pasteFile)} download={pasteFile.name}>
                   <DownloadIcon className="size-6 inline" />
                 </a>
               </Button>
