@@ -77,7 +77,7 @@ export function CodeEditor({
   className,
   ...rest
 }: CodeInputProps) {
-  const refHighlighting = useRef<HTMLDivElement | null>(null)
+  const refHighlighting = useRef<HTMLPreElement | null>(null)
   const refTextarea = useRef<HTMLTextAreaElement | null>(null)
 
   const [heightPx, setHeightPx] = useState<number>(0)
@@ -178,10 +178,11 @@ export function CodeEditor({
           className={`relative w-full`}
           style={{ tabSize: tabSetting.char === "tab" ? tabSetting.width : undefined }}
         >
-          <div className={"w-full font-mono overflow-auto top-0 left-0 absolute"} ref={refHighlighting}>
+          <div className={"w-full font-mono top-0 left-0 absolute"}>
             <pre
-              className={`text-foreground ${tst}`}
-              style={{ paddingLeft: lineNumOffset, height: `${heightPx}px` }}
+              ref={refHighlighting}
+              className={`text-foreground ${tst} w-full overflow-x-hidden`}
+              style={{ marginLeft: lineNumOffset, width: `calc(100% - ${lineNumOffset})`, height: `${heightPx}px` }}
               dangerouslySetInnerHTML={{ __html: highlightHTML(hljs, lang, handleNewLines(content)) }}
             ></pre>
             <span
@@ -196,9 +197,10 @@ export function CodeEditor({
             </span>
           </div>
           <textarea
-            className={`w-full font-mono min-h-[20em] text-[transparent] placeholder-default-400 
-             caret-foreground bg-transparent outline-none relative`}
-            style={{ paddingLeft: lineNumOffset }}
+            className={`w-full font-mono min-h-[20em] text-transparent placeholder-default-400 
+             caret-foreground bg-transparent outline-none relative overflow-x-auto`}
+            style={{ marginLeft: lineNumOffset, width: `calc(100% - ${lineNumOffset})` }}
+            wrap={"off"}
             ref={refTextarea}
             readOnly={disabled}
             placeholder={placeholder}

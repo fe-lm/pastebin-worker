@@ -18,12 +18,15 @@ import "../style.css"
 import "../styles/highlight-theme-light.css"
 import "../styles/highlight-theme-dark.css"
 
+const utf8CompatibleEncodings = ["utf-8", "ASCII", "ISO-8859-1"]
+
 export function DisplayPaste() {
   const [pasteFile, setPasteFile] = useState<File | undefined>(undefined)
   const [pasteContentBuffer, setPasteContentBuffer] = useState<ArrayBuffer | undefined>(undefined)
   const [pasteLang, setPasteLang] = useState<string | undefined>(undefined)
 
   const [isFileBinary, setFileBinary] = useState(false)
+  const [guessedEncoding, setGuessedEncoding] = useState<string | null>(null)
   const [isDecrypted, setDecrypted] = useState<"not encrypted" | "encrypted" | "decrypted">("not encrypted")
   const [forceShowBinary, setForceShowBinary] = useState(false)
   const showFileContent = pasteFile !== undefined && (!isFileBinary || forceShowBinary)
@@ -80,7 +83,8 @@ export function DisplayPaste() {
             setFileBinary(true)
           } else {
             const encoding = chardet.detect(respBytes)
-            setFileBinary(encoding !== "utf8" && encoding !== "ASCII")
+            setFileBinary(encoding === null || !utf8CompatibleEncodings.includes(encoding))
+            setGuessedEncoding(encoding)
           }
         } else {
           let key: CryptoKey | undefined
@@ -106,8 +110,9 @@ export function DisplayPaste() {
           setPasteLang(lang || undefined)
 
           const encoding = chardet.detect(decrypted)
-          setFileBinary(encoding !== "utf8" && encoding !== "ASCII")
+          setFileBinary(encoding === null || !utf8CompatibleEncodings.includes(encoding))
           setDecrypted("decrypted")
+          setGuessedEncoding(encoding)
         }
       } finally {
         setIsLoading(false)
@@ -123,7 +128,7 @@ export function DisplayPaste() {
     <div className="absolute top-[50%] left-[50%] translate-[-50%] flex flex-col items-center w-full">
       <div className="text-foreground-600 mb-2">{`${pasteFile?.name} (${formatSize(pasteFile.size)})`}</div>
       <div className="w-fit text-center">
-        This file seems to be binary or not in UTF-8.{" "}
+        This file seems to be binary or not in UTF-8{guessedEncoding ? ` (${guessedEncoding} guessed). ` : ". "}
         <button className="text-primary-500 inline" onClick={() => setForceShowBinary(true)}>
           (Click to show)
         </button>
@@ -131,6 +136,7 @@ export function DisplayPaste() {
     </div>
   )
 
+  const lineNumOffset = `${Math.floor(Math.log10(pasteLineCount)) + 3}ch`
   const buttonClasses = `rounded-full bg-background hover:bg-default-100 ${tst}`
   return (
     <main
@@ -193,8 +199,9 @@ export function DisplayPaste() {
                       </div>
                       <div className="font-mono relative" role="article">
                         <pre
-                          style={{ paddingLeft: `${Math.floor(Math.log10(pasteLineCount)) + 3}ch` }}
+                          style={{ marginLeft: lineNumOffset, width: `calc(100% - ${lineNumOffset})` }}
                           dangerouslySetInnerHTML={{ __html: highlightedHTML }}
+                          className={"overflow-x-auto"}
                         />
                         <span
                           className={
