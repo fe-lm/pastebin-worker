@@ -1,6 +1,7 @@
 import React, { JSX, useEffect, useState, useSyncExternalStore } from "react"
-import { ComputerIcon, MoonIcon, SunIcon } from "./icons.js"
 import { Button, ButtonProps, Tooltip } from "@heroui/react"
+
+import { ComputerIcon, MoonIcon, SunIcon } from "./icons.js"
 import { tst } from "../utils/overrides.js"
 
 const modeSelections = ["system", "light", "dark"]

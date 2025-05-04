@@ -12,11 +12,9 @@ import { parseFilenameFromContentDisposition, parsePath } from "../../shared/par
 import { decodeKey, decrypt, EncryptionScheme } from "../utils/encryption.js"
 import { formatSize } from "../utils/utils.js"
 import { tst } from "../utils/overrides.js"
+import { highlightHTML, useHLJS } from "../utils/HighlightLoader.js"
 
 import "../style.css"
-import "../styles/highlight-theme-light.css"
-import "../styles/highlight-theme-dark.css"
-import { highlightHTML, useHLJS } from "../utils/HighlightLoader.js"
 
 function isBinaryPath(path: string) {
   return binaryExtensions.includes(path.replace(/.*\./, ""))

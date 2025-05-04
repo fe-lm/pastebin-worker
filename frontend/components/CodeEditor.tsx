@@ -1,11 +1,10 @@
 // inspired by https://css-tricks.com/creating-an-editable-textarea-that-supports-syntax-highlighted-code/
 
 import React, { useEffect, useRef, useState } from "react"
+import { Autocomplete, AutocompleteItem, Input, Select, SelectItem } from "@heroui/react"
 
-import "../styles/highlight-theme-light.css"
 import { autoCompleteOverrides, inputOverrides, selectOverrides, tst } from "../utils/overrides.js"
 import { useHLJS, highlightHTML } from "../utils/HighlightLoader.js"
-import { Autocomplete, AutocompleteItem, Input, Select, SelectItem } from "@heroui/react"
 
 import "../styles/highlight-theme-light.css"
 import "../styles/highlight-theme-dark.css"
