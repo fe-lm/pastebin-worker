@@ -131,7 +131,7 @@ export function CodeEditor({
     }
   }, [])
 
-  const lineNumOffset = `${Math.floor(Math.log10(lineCount)) + 2}em`
+  const lineNumOffset = `${Math.floor(Math.log10(lineCount)) + 3}ch`
 
   return (
     <div className={className} {...rest}>

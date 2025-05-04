@@ -15,6 +15,8 @@ import { tst } from "../utils/overrides.js"
 import { highlightHTML, useHLJS } from "../utils/HighlightLoader.js"
 
 import "../style.css"
+import "../styles/highlight-theme-light.css"
+import "../styles/highlight-theme-dark.css"
 
 function isBinaryPath(path: string) {
   return binaryExtensions.includes(path.replace(/.*\./, ""))
@@ -195,7 +197,7 @@ export function DisplayPaste() {
                       </div>
                       <div className="font-mono relative" role="article">
                         <pre
-                          style={{ paddingLeft: `${Math.floor(Math.log10(pasteLineCount)) + 2}em` }}
+                          style={{ paddingLeft: `${Math.floor(Math.log10(pasteLineCount)) + 3}ch` }}
                           dangerouslySetInnerHTML={{ __html: highlightedHTML }}
                         />
                         <span
