@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 
 import { Button, CircularProgress, Link, Tooltip } from "@heroui/react"
-import binaryExtensions from "binary-extensions"
+import chardet from "chardet"
 
 import { useErrorModal } from "../components/ErrorModal.js"
 import { DarkModeToggle, useDarkModeSelection } from "../components/DarkModeToggle.js"
@@ -17,10 +17,6 @@ import { highlightHTML, useHLJS } from "../utils/HighlightLoader.js"
 import "../style.css"
 import "../styles/highlight-theme-light.css"
 import "../styles/highlight-theme-dark.css"
-
-function isBinaryPath(path: string) {
-  return binaryExtensions.includes(path.replace(/.*\./, ""))
-}
 
 export function DisplayPaste() {
   const [pasteFile, setPasteFile] = useState<File | undefined>(undefined)
@@ -73,7 +69,6 @@ export function DisplayPaste() {
 
         const inferredFilename = filename || (ext && name + ext) || filenameFromDisp
         const respBytes = await resp.bytes()
-        const isBinary = lang === null && inferredFilename !== undefined && isBinaryPath(inferredFilename)
         setPasteLang(lang || undefined)
 
         const keyString = url.hash.slice(1)
@@ -84,7 +79,8 @@ export function DisplayPaste() {
             setDecrypted("encrypted")
             setFileBinary(true)
           } else {
-            setFileBinary(isBinary)
+            const encoding = chardet.detect(respBytes)
+            setFileBinary(encoding !== "utf8" && encoding !== "ASCII")
           }
         } else {
           let key: CryptoKey | undefined
@@ -109,8 +105,8 @@ export function DisplayPaste() {
           setPasteContentBuffer(decrypted)
           setPasteLang(lang || undefined)
 
-          const isBinary = lang === null && inferredFilename !== undefined && isBinaryPath(inferredFilename)
-          setFileBinary(isBinary)
+          const encoding = chardet.detect(decrypted)
+          setFileBinary(encoding !== "utf8" && encoding !== "ASCII")
           setDecrypted("decrypted")
         }
       } finally {
@@ -127,7 +123,7 @@ export function DisplayPaste() {
     <div className="absolute top-[50%] left-[50%] translate-[-50%] flex flex-col items-center w-full">
       <div className="text-foreground-600 mb-2">{`${pasteFile?.name} (${formatSize(pasteFile.size)})`}</div>
       <div className="w-fit text-center">
-        Possibly Binary file{" "}
+        This file seems to be binary or not in UTF-8.{" "}
         <button className="text-primary-500 inline" onClick={() => setForceShowBinary(true)}>
           (Click to show)
         </button>
