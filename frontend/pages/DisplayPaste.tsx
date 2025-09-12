@@ -144,7 +144,7 @@ export function DisplayPaste() {
     >
       <div className="w-full max-w-[64rem]">
         <div className="flex flex-row my-4 items-center justify-between">
-          <h1 className="text-xl md:text-2xl grow inline-flex items-center">
+          <h1 className="text-xl md:text-2xl grow inline-flex items-baseline">
             <Link href="/" className="text-foreground-500 text-[length:inherited]">
               <Button isIconOnly aria-label={INDEX_PAGE_TITLE} className={buttonClasses + " md:hidden"}>
                 <HomeIcon className="size-6" />
