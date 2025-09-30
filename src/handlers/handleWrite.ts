@@ -160,7 +160,7 @@ export async function handlePostOrPut(
   } else {
     let pasteName: string | undefined
     if (nameFromForm !== undefined) {
-      pasteName = "~" + nameFromForm
+      pasteName = "" + nameFromForm
       if (!(await pasteNameAvailable(env, pasteName))) {
         throw new WorkerError(409, `name '${pasteName}' is already used`)
       }

@@ -17,7 +17,7 @@ function indexPage(env: Env): string {
 }
 
 export function getStaticPage(path: string, env: Env): string | null {
-  if (path === "/" || path === "/index" || path === "/index.html") {
+  if (path === "/index" || path === "/index.html") {
     return indexPage(env)
   } else if (path === "/tos" || path === "/tos.html") {
     const tosMdRenderred = tosMd

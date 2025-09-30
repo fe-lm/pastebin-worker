@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
   <meta charset="UTF-8" />
-  <title>Yet another pastebin</title>
+  <title>Pastebin</title>
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1, shrink-to-fit=no"
@@ -12,19 +12,6 @@
 <html lang="en">
   <body>
     <div class="px-3 my-5 markdown-body">
-      <h1>Yet Another Pastebin</h1>
-      <p>This is an open source pastebin deployed on Cloudflare Workers.</p>
-      <p>
-        <b>Usage</b>: paste any text here, submit, then share it with URL. (<a
-          href="{{BASE_URL}}/api"
-          >API Documentation</a
-        >)
-      </p>
-      <p>
-        <b>Warning</b>: only for temporary share (<b>max 30 days</b>). Files
-        will be deleted without notice!
-      </p>
-
       <div id="paste-input-panel">
         <div id="paste-header">
           <div class="paste-header-tabs">
@@ -64,7 +51,7 @@
             name="paste-expiration"
             id="paste-expiration-input"
             placeholder="Expiration (secs)"
-            value="7d"
+            value="1d"
           />
           <label class="small-label" for="paste-expiration-input"
             >Delete your paste after a period of time (leave blank for no
@@ -123,7 +110,7 @@
             >Set by your own</label
           >
           <div id="paste-url-input-wrapper">
-            <span id="paste-url-input-prefix">{{BASE_URL}}/~</span>
+            <span id="paste-url-input-prefix">{{BASE_URL}}/</span>
             <input
               type="text"
               id="paste-custom-url-input"
@@ -131,7 +118,7 @@
               name="custom-url"
             />
           </div>
-          <span class="small-label">Example: {{BASE_URL}}/~stocking</span>
+          <span class="small-label">Example: {{BASE_URL}}/stocking</span>
         </div>
         <div class="label-line">
           <input
@@ -202,7 +189,10 @@
       <p>
         <a href="{{BASE_URL}}/tos" class="d-inline-block">Terms & Conditions</a>
         /
-        <a href="{{REPO}}" class="d-inline-block">Github</a>
+        <a
+          href="{{BASE_URL}}/api"
+          >API Documentation</a
+        >)
       </p>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
